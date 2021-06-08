@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,3 +19,8 @@ namespace WebApiGear
         public DbSet<PersonModel> Person { get; set; }
     }
 }
+
+
+//Hacer Migracion 
+// add-migration inicial
+// dotnet ef database update
