@@ -21,7 +21,7 @@ namespace WebApiGear.Controllers
         }
         // GET: api/<TrademarkController>
         [HttpGet]
-        public IEnumerable<TrademarkModel> Get()
+        public IEnumerable<TrademarkModel> GetTradeMark()
         {
             var list = _dbContext.Trademark.ToList();
             return list;
@@ -49,7 +49,7 @@ namespace WebApiGear.Controllers
 
         // POST api/<TrademarkController>
         [HttpPost]
-        public async Task<IActionResult> PostTradeMarkBy(TrademarkModel data)
+        public async Task<IActionResult> PostTradeMark(TrademarkModel data)
         {
             if (!ModelState.IsValid)
             {

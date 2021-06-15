@@ -17,6 +17,6 @@ namespace WebApiGear.Models
         [Required, StringLength(150)]
         public int IdTrademark { get; set; }
 
-        public virtual TrademarkModel TrademarkName { get; set; }
+        //public virtual TrademarkModel TrademarkName { get; set; }
     }
 }
