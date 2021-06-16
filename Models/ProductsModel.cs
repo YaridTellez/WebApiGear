@@ -14,8 +14,8 @@ namespace WebApiGear.Models
         public int IdProduct { get; set; }
         [Required, StringLength(150)]
         public string ProductName { get; set; }
-        [Required, StringLength(150)]
-        public string ProductPrice { get; set; }
+        [Column(TypeName = "decimal(7, 2)")]
+        public decimal ProductPrice { get; set; }
         [Required]
         public int ProductStock { get; set; }
         [Required, ForeignKey(nameof(CategoryName))]

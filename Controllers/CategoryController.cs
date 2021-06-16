@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace WebApiGear.Controllers
         [HttpGet]
         public IEnumerable<CategoryModel> GetCategory()
         {
-            var list = _dbContext.Category.ToList();
+            var list = _dbContext.Category.Include(x => x.TrademarkName).ToList();
             return list;
         }
 

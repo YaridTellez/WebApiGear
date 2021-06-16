@@ -14,9 +14,10 @@ namespace WebApiGear.Models
         public int IdCategory { get; set; }
         [Required, StringLength(150)]
         public string CategoryName { get; set; }
-        [Required, StringLength(150)]
+
+        [ForeignKey(nameof(TrademarkName)), Required]
         public int IdTrademark { get; set; }
 
-        //public virtual TrademarkModel TrademarkName { get; set; }
+        public virtual TrademarkModel TrademarkName { get; set; }
     }
 }

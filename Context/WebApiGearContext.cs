@@ -23,5 +23,15 @@ namespace WebApiGear.Context
         public DbSet<ProductsModel> Products { get; set; }
         public DbSet<CategoryModel> Category { get; set; }
         public DbSet<TrademarkModel> Trademark { get; set; }
+        public DbSet<PurchaseDetailModel> purchaseDetails { get; set; }
+        public DbSet<ShoppingCartModel> ShoppingCart { get; set; }
+        public DbSet<PaymentMethodModel> PaymentMethod { get; set; }
+        public DbSet<PaymentsModel> Payments { get; set; }
+        public DbSet<PaymentOrderModel> PaymentOrder { get; set; }
+        public DbSet<PaymentOrderStatusModel> PaymentOrderStatus { get; set; }
+
+
     }
 }
+//add-migration
+//dotnet ef database update
