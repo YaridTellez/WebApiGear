@@ -18,6 +18,8 @@ namespace WebApiGear.Models
         public decimal ProductPrice { get; set; }
         [Required]
         public int ProductStock { get; set; }
+        [Required]
+        public string ImageProduct { get; set; }
         [Required, ForeignKey(nameof(CategoryName))]
         public int IdCategory { get; set; }
 
