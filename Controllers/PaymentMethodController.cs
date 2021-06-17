@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using WebApiGear.Context;
+using WebApiGear.Models;
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApiGear.Controllers
@@ -13,36 +16,104 @@ namespace WebApiGear.Controllers
     [ApiController]
     public class PaymentMethodController : ControllerBase
     {
-        // GET: api/<PaymentMethodController>
+        private WebApiGearContext _dbContext;
+        public PaymentMethodController(WebApiGearContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        // GET: api/<PaymentsController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<PaymentMethodModel> GetPaymentMethod()
         {
-            return new string[] { "value1", "value2" };
+            var list = _dbContext.PaymentMethod.ToList();
+            return list;
         }
 
-        // GET api/<PaymentMethodController>/5
+        // GET api/<PaymentsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> GetPaymentMethodById(int id)
         {
-            return "value";
+            PaymentMethodModel PMDb = new PaymentMethodModel();
+            try
+            {
+                PMDb = _dbContext.PaymentMethod.Find(id);
+                if (PMDb == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return Ok(PMDb);
         }
 
-        // POST api/<PaymentMethodController>
+        // POST api/<PaymentsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> PostPaymentMethod([FromBody] PaymentMethodModel data)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                _dbContext.PaymentMethod.Add(data);
+                _dbContext.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok(data);
         }
 
-        // PUT api/<PaymentMethodController>/5
+        // PUT api/<PaymentsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> PutPaymentMethod(int id, [FromBody] PaymentMethodModel data)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                PaymentMethodModel PMDb = new PaymentMethodModel();
+                PMDb = _dbContext.PaymentMethod.Find(id);
+                if (PMDb != null)
+                {
+                    if (data.IdMethod != 0)
+                    {
+                        PMDb.IdMethod = data.IdMethod;
+                    }
+                    PMDb.PaymentDate = data.PaymentDate;
+                    PMDb.MethodDescription = data.MethodDescription;
+
+                    //   _dbContext.Category.Update(CMDb);
+                }
+                int i = this._dbContext.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok(data);
         }
 
-        // DELETE api/<PaymentMethodController>/5
+        // DELETE api/<PaymentsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeletePaymentMethod(int id)
         {
+            PaymentMethodModel paymentMethod = _dbContext.PaymentMethod.Find(id);
+            if (paymentMethod == null)
+            {
+                return NotFound();
+            }
+            _dbContext.Remove(paymentMethod);
+            _dbContext.SaveChanges();
+
+            return Ok(paymentMethod);
         }
     }
 }

@@ -47,8 +47,7 @@ namespace WebApiGear.Controllers
                 var us = await _userManager.FindByNameAsync(model.UserName);
                 if (us != null)
                 {
-                    if (us.EmailConfirmed)
-                    {
+                   
                         var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                         if (result.Succeeded)
                         {
@@ -79,8 +78,7 @@ namespace WebApiGear.Controllers
                             return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales." });
 
                         }
-                    }
-                    return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Debes verificar primero tu cuenta, revisa tu correo." });
+                    
                 }
                 return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales. Usuario no encontrado" });
             }

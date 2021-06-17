@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using WebApiGear.Context;
+using WebApiGear.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,36 +17,107 @@ namespace WebApiGear.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        // GET: api/<PaymentsController>
+        private WebApiGearContext _dbContext;
+        public PaymentsController(WebApiGearContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        // GET: api/<PaymentMethodController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<PaymentsModel> GetPayment()
         {
-            return new string[] { "value1", "value2" };
+            var list = _dbContext.Payments.Include(x => x.MethodPayment).Include(x => x.PaymentCart).ToList();
+            return list;
         }
 
-        // GET api/<PaymentsController>/5
+        // GET api/<PaymentMethodController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> GetPaymentsById(int id)
         {
-            return "value";
+            PaymentsModel PDb = new PaymentsModel();
+            try
+            {
+                PDb = _dbContext.Payments.Find();
+                if(PDb == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            PDb.MethodPayment = _dbContext.PaymentMethod.Find(PDb.IdMethod);
+            PDb.PaymentCart = _dbContext.ShoppingCart.Find(PDb.IdShoppingCart);
+            return Ok(PDb);
         }
 
-        // POST api/<PaymentsController>
+        // POST api/<PaymentMethodController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> PostPayments(PaymentsModel data)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                _dbContext.Payments.Add(data);
+                _dbContext.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok(data);
         }
 
-        // PUT api/<PaymentsController>/5
+        // PUT api/<PaymentMethodController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> PutPayments([FromBody] PaymentsModel data, int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                PaymentsModel PDb = new PaymentsModel();
+                PDb = _dbContext.Payments.Find(id);
+                if (PDb != null)
+                {
+                    if (data.IdPayment != 0)
+                    {
+                        PDb.IdPayment = data.IdPayment;
+                    }
+                    PDb.IdMethod = data.IdMethod;
+                    
+                   
+
+                 //   _dbContext.Category.Update(CMDb);
+                }
+                int i = this._dbContext.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok(data);
         }
 
-        // DELETE api/<PaymentsController>/5
+        // DELETE api/<PaymentMethodController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeletePayments(int id)
         {
+            PaymentsModel payments = _dbContext.Payments.Find(id);
+            if (payments == null)
+            {
+                return NotFound();
+            }
+            _dbContext.Remove(payments);
+            _dbContext.SaveChanges();
+
+            return Ok(payments);
         }
     }
 }
