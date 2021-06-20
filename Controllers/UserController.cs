@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +23,15 @@ namespace WebApiGear.Controllers
     public class UserController : ControllerBase
     {
         private WebApiGearContext _dbContext;
-        public UserController(WebApiGearContext dbContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
+        public UserController(WebApiGearContext dbContext,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
+            _configuration = configuration;
         }
         // GET: api/<UserController>
         [HttpGet]
@@ -54,23 +64,74 @@ namespace WebApiGear.Controllers
         //}
 
         // POST api/<UserController>
+        //[HttpPost]
+        //public async Task<IActionResult> PostUser([FromBody] ApplicationUser data)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    try
+        //    {
+        //        _dbContext.AspNetUsers.Add(data);
+        //        _dbContext.SaveChanges();
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //    return Ok(data);
+        //
+        [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> PostUser([FromBody] ApplicationUser data)
+        public async Task<IActionResult> UserRegister([FromBody] ViewModelUser model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             try
             {
-                _dbContext.AspNetUsers.Add(data);
-                _dbContext.SaveChanges();
+                if (!model.Password.Equals(model.ConfirmedPassword))
+                {
+                    return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "Las contraseñas no coinciden" });
+                }
+
+                if (!model.Email.Equals(model.ConfirmedEmail))
+                {
+                    return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "Los correos electrónicos no coinciden no coincide" });
+                }
+                var userDB = await _userManager.FindByEmailAsync(model.Email);
+
+                if (userDB != null)
+                {
+                    return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "El correo electrónico ya está registrado, inicia sesión" });
+                }
+                string errorsEmail = "";
+
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    DocumentNumber = model.DocumentNumber,
+                    Phone = model.Phone,
+                    PhoneNumber = model.Phone
+
+                };
+                var result = _userManager.CreateAsync(user, model.Password);
+
+                if (result.Result.Succeeded)
+                {
+                    // create role 
+                    await _userManager.AddToRoleAsync(user, model.Role);
+                }
             }
-            catch
+            catch (Exception e)
             {
-                throw;
+                return new JsonResult(new ViewModelResponse<object>()
+                {
+                    Error = true,
+                    Response = String.Format("Ocurrio un error , intenta nuevamente. {0}", e.Message)
+                });
             }
-            return Ok(data);
         }
 
         //// PUT api/<UserController>/5
