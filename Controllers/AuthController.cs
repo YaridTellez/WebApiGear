@@ -57,7 +57,7 @@ namespace WebApiGear.Controllers
 
                             var appUser = _userManager.Users.SingleOrDefault(u => u.UserName == model.UserName);
                             var token = GenerateJwtToken(model.UserName, appUser);
-
+                      
                             ViewModelUser user = new ViewModelUser()
                             {
                                 Id = new Guid(us.Id),
@@ -71,21 +71,21 @@ namespace WebApiGear.Controllers
                                 Role = roles[0]
                             };
 
-                            return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = false, Response = "Has iniciado sesión satisfactoriamente", Object = user, Token = token });
+                            return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = false, Response = "Has iniciado sesión satisfactoriamente", Object = user, Token = token, Status = "Ok" });
                         }
                         else
                         {
-                            return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales." });
+                            return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales.", Status = "ValidaCon" });
 
                         }
                     
                 }
-                return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales. Usuario no encontrado" });
+                return new JsonResult(new ViewModelResponse<ViewModelUser>() { Error = true, Response = "Valida tus credenciales. Usuario no encontrado", Status = "ValidaUsu" });
             }
             catch (Exception e)
             {
                 string error = String.Format("Ocurrion un error. Intente nuevamente. {0}", e.Message);
-                return new JsonResult(new ViewModelResponse<ViewModelUser> { Error = true, Response = error });
+                return new JsonResult(new ViewModelResponse<ViewModelUser> { Error = true, Response = error, Status = "Error" });
             }
         }
         [NonAction]

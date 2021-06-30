@@ -565,7 +565,7 @@ namespace WebApiGear.Migrations
 
             modelBuilder.Entity("WebApiGear.Models.ProductsModel", b =>
                 {
-                    b.HasOne("WebApiGear.Models.CategoryModel", "CategoryName")
+                    b.HasOne("WebApiGear.Models.CategoryModel", "Category")
                         .WithMany()
                         .HasForeignKey("IdCategory")
                         .OnDelete(DeleteBehavior.Cascade)

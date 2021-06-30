@@ -6,5 +6,6 @@
         public string Response { get; set; }
         public TObject Object { get; set; }
         public object Token { get; set; }
+        public string Status { get; set; }
     }
 }

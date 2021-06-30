@@ -82,7 +82,7 @@ namespace WebApiGear.Controllers
         //    }
         //    return Ok(data);
         //
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> UserRegister([FromBody] ViewModelUser model)
         {
@@ -97,13 +97,13 @@ namespace WebApiGear.Controllers
                 {
                     return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "Los correos electrónicos no coinciden no coincide" });
                 }
+
                 var userDB = await _userManager.FindByEmailAsync(model.Email);
 
                 if (userDB != null)
                 {
                     return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "El correo electrónico ya está registrado, inicia sesión" });
                 }
-                string errorsEmail = "";
 
                 var user = new ApplicationUser
                 {
@@ -113,16 +113,23 @@ namespace WebApiGear.Controllers
                     Email = model.Email,
                     DocumentNumber = model.DocumentNumber,
                     Phone = model.Phone,
-                    PhoneNumber = model.Phone
+                    PhoneNumber = model.Phone,
+                    Address = model.Address,
+                    CityId = model.LocationId
+
+                    
 
                 };
-                var result = _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Result.Succeeded)
+                if (result.Succeeded)
                 {
                     // create role 
                     await _userManager.AddToRoleAsync(user, model.Role);
+
+                    return new JsonResult(new ViewModelResponse<object>() { Error = false, Response = "Usuario registrado satisfactoriamente." });
                 }
+                return new JsonResult(new ViewModelResponse<object>() { Error = true, Response = "La contraseña debe tener un dígito, una letra minúscula, un caracter no alfanumérico, almenos una letra mayúscula y su longitud debe ser mayor o igual a 8 caracteres." });
             }
             catch (Exception e)
             {

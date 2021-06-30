@@ -12,17 +12,23 @@ namespace WebApiGear.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdProduct { get; set; }
+
         [Required, StringLength(150)]
         public string ProductName { get; set; }
-        [Column(TypeName = "decimal(7, 2)")]
+
+        [Column(TypeName = "decimal(18, 0)")]
         public decimal ProductPrice { get; set; }
+
         [Required]
         public int ProductStock { get; set; }
+
         [Required]
         public string ImageProduct { get; set; }
-        [Required, ForeignKey(nameof(CategoryName))]
+
+        [ForeignKey(nameof(Category))]
         public int IdCategory { get; set; }
 
-        public virtual CategoryModel CategoryName { get; set; }
+        public virtual CategoryModel Category { get; set; }
+        // [ForeignKey("IdCategory")] public virtual CategoryModel Category { get; set; }
     }
 }

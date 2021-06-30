@@ -26,7 +26,7 @@ namespace WebApiGear.Controllers
         [HttpGet]
         public IEnumerable<ProductsModel> GetProducts()
         {
-            var list = _dbContext.Products.Include(x => x.CategoryName).ToList();
+            var list = _dbContext.Products.Include(x => x.Category).ToList();
             return list;
         }
 
@@ -47,33 +47,81 @@ namespace WebApiGear.Controllers
             {
                 throw;
             }
-            PDb.CategoryName = _dbContext.Category.Find(PDb.IdCategory);
+            PDb.Category = _dbContext.Category.Find(PDb.IdCategory);
             return Ok(PDb);
         }
 
         // POST api/<ProductsController>
         [HttpPost]
-        public async Task<IActionResult> PostProducts([FromBody] ProductsModel data)
+        public async Task<ActionResult<ProductsModel>> PostPaymentDetailModel(ProductsModel ProductsModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                _dbContext.Products.Add(data);
-                _dbContext.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
-            return Ok(data);
+            _dbContext.Products.Add(ProductsModel);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction("GetProductsById", new { id = ProductsModel.IdProduct }, ProductsModel);
         }
+        //[HttpPost]
+        //public async Task<IActionResult> PostProducts([FromBody]  ProductsModel data)
+        //{
+        //    //ProductsModel product = new ProductsModel()
+        //    //{
+        //    //    ProductName = data.ProductName,
+        //    //    ProductPrice = data.ProductPrice,
+        //    //    ProductStock = data.ProductStock,
+        //    //    ImageProduct = data.ImageProduct,
+        //    //    IdCategory = data.IdCategory
+        //    //};
+        //    //return Ok(data);
+
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    try
+        //    {
+        //        ProductsModel PDb = new ProductsModel();
+        //        if (PDb != null)
+        //        {
+        //            if (data.IdProduct != 0)
+        //            {
+        //                PDb.IdProduct = data.IdProduct;
+        //            }
+        //            PDb.ProductName = data.ProductName;
+        //            PDb.ProductPrice = data.ProductPrice;
+        //            PDb.ProductStock = data.ProductStock;
+        //            PDb.ImageProduct = data.ImageProduct;
+        //            PDb.IdCategory = data.IdCategory;
+
+        //           _dbContext.Products.Add(PDb);
+        //        }
+        //        int i = this._dbContext.SaveChanges();
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        throw new Exception("Error Inesperado", e);                
+        //    }
+        //    return Ok(data);
+        //    //if (!ModelState.IsValid)
+        //    //{
+        //    //    return BadRequest(ModelState);
+        //    //}
+        //    //try
+        //    //{
+        //    //    _dbContext.Products.Add(data);
+        //    //    _dbContext.SaveChanges();
+        //    //}
+        //    //catch
+        //    //{
+        //    //    throw;
+        //    //}
+        //    //return Ok(data);
+        //}
+
 
         // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProducts(int id, [FromBody] ProductsModel data)
+        public async Task<IActionResult> PutProducts(int id,[FromBody] ProductsModel data)
         {
 
             if (!ModelState.IsValid)

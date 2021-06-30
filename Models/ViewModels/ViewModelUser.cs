@@ -16,6 +16,7 @@ namespace WebApiUser.Model.ViewModels
         public int LocationId { get; set; }
         public string Password { get; set; }
         public string ConfirmedPassword { get; set; }
+        public string Address { get; set; }
 
         public LocationModel Location { get; set; }
 

@@ -18,9 +18,6 @@ namespace WebApiGear.Models.Identity
         [Required, StringLength(80)]
         public string LastName { get; set; }
 
-        [Required, StringLength(80)]
-        public string Email { get; set; }
-
         [Required, StringLength(15)]
         public string Phone { get; set; }
 

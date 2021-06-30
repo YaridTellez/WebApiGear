@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,10 @@ namespace WebApiGear.Controllers
         }
         // GET: api/<TrademarkController>
         [HttpGet]
-        public IEnumerable<TrademarkModel> GetTradeMark()
+        public async Task<ActionResult<IEnumerable<TrademarkModel>>> GetTradeMark()
         {
-            var list = _dbContext.Trademark.ToList();
-            return list;
+            return await _dbContext.Trademark.ToListAsync();
+            
         }
 
         // GET api/<TrademarkController>/5

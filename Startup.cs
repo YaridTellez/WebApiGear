@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,8 +39,23 @@ namespace WebApiGear
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<WebApiGearContext>(options =>
-                                   options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
+            services.AddControllers();
+
+            var connectionStringContext = Configuration.GetConnectionString("DevConnection");
+            services.AddDbContext<WebApiGearContext>(options => {
+                options.UseSqlServer(connectionStringContext,
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(
+                            typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+
+                        //Configuring Connection Resiliency:
+                        sqlOptions.
+                            EnableRetryOnFailure(maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    });
+            });
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
@@ -47,6 +63,18 @@ namespace WebApiGear
                 .AddDefaultTokenProviders();
 
             services.AddSingleton(_ => Configuration);
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 @.";
+            });
 
             // Add Jwt Authentication
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -70,7 +98,7 @@ namespace WebApiGear
                     ClockSkew = TimeSpan.Zero
                 };
             });
-            services.AddControllers();
+            
 
             // Add Swagger
             services.AddSwaggerGen(options =>
@@ -91,11 +119,16 @@ namespace WebApiGear
                         },
                     });
             });
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            app.UseCors(options =>
+                options.WithOrigins("http://localhost:4200")
+               .AllowAnyHeader()
+                .AllowAnyMethod());
 
             if (env.IsDevelopment())
             {
